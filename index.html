@@ -106,7 +106,36 @@ function calculateRisk(){
 const statusEl=document.getElementById('status');
 const priceEl=document.getElementById('price');
 const digitEl=document.getElementById('digit');
-let socket;
+let
+const chartCanvas = document.getElementById('priceChart');
+const chartCtx = chartCanvas ? chartCanvas.getContext('2d') : null;
+const recentPrices = [];
+
+function drawPriceChart() {
+  if (!chartCtx || recentPrices.length < 2) return;
+
+  const w = chartCanvas.width = chartCanvas.clientWidth;
+  const h = chartCanvas.height = 260;
+  const min = Math.min(...recentPrices);
+  const max = Math.max(...recentPrices);
+  const range = max - min || 1;
+
+  chartCtx.clearRect(0, 0, w, h);
+  chartCtx.beginPath();
+
+  recentPrices.forEach((price, i) => {
+    const x = i * w / (recentPrices.length - 1);
+    const y = h - 15 - ((price - min) / range) * (h - 30);
+    if (i === 0) chartCtx.moveTo(x, y);
+    else chartCtx.lineTo(x, y);
+  });
+
+  chartCtx.strokeStyle = '#4ade80';
+  chartCtx.lineWidth = 2;
+  chartCtx.stroke();
+}
+ socket;
+  
 function connectMarket(){
   try{
     socket=new WebSocket('wss://api.derivws.com/trading/v1/options/ws/public');
@@ -121,6 +150,11 @@ function connectMarket(){
         const quote=Number(data.tick.quote);
         const formatted=quote.toFixed(Number(data.tick.pip_size)||2);
         priceEl.textContent=formatted;
+        
+recentPrices.push(quote);
+if (recentPrices.length > 50) recentPrices.shift();
+drawPriceChart();
+        
         digitEl.textContent=formatted.replace('.','').slice(-1);
         statusEl.textContent='Live public market data connected';
       }
