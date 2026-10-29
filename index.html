@@ -100,10 +100,10 @@ const digitEl=document.getElementById('digit');
 let socket;
 function connectMarket(){
   try{
-    socket=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
+    socket=new WebSocket('wss://api.derivws.com/trading/v1/options/ws/public');
     socket.onopen=()=>{
       statusEl.textContent='Connected. Waiting for market ticks...';
-      socket.send(JSON.stringify({ticks:'R_100',subscribe:1}));
+    socket.send(JSON.stringify({ticks:'1HZ100V',subscribe:1}));
     };
     socket.onmessage=(event)=>{
       const data=JSON.parse(event.data);
